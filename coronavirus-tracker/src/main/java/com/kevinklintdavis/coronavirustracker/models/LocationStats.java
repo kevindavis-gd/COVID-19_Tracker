@@ -2,8 +2,17 @@ package com.kevinklintdavis.coronavirustracker.models;
 
 public class LocationStats {
     private String state;
-    private  String country;
+    private String country;
     private int latestTotalCases;
+    private int diffFromPreviousDay;
+
+    public int getDiffFromPreviousDay() {
+        return diffFromPreviousDay;
+    }
+
+    public void setDiffFromPreviousDay(int diffFromPreviousDay) {
+        this.diffFromPreviousDay = diffFromPreviousDay;
+    }
 
     public String getState() {
         return state;

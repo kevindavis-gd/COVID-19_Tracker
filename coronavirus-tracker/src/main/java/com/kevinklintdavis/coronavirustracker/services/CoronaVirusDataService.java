@@ -23,31 +23,40 @@ public class CoronaVirusDataService {
 
     private List<LocationStats> allStats = new ArrayList<>();
 
+    public static String getVirusDataUrl() {
+        return VIRUS_DATA_URL;
+    }
+
+    public List<LocationStats> getAllStats() {
+        return allStats;
+    }
+
     @PostConstruct
+    //runs the method once every hour
     @Scheduled(cron = "* 1 * * * *")
     public void fetchVirusData() throws IOException, InterruptedException {
 
         List<LocationStats> newStats = new ArrayList<>();
-
+        //request the information and stores the response
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(VIRUS_DATA_URL)).build();
         HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        System.out.println(httpResponse.body());
-
+        //Use Apache Commons to parse CSV data
         StringReader csvBodyReader = new StringReader(httpResponse.body());
         Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
-
-
         for (CSVRecord record : records) {
             LocationStats locationStat = new LocationStats();
             locationStat.setState(record.get("Province/State"));
             locationStat.setCountry(record.get("Country/Region"));
-            locationStat.setLatestTotalCases(Integer.parseInt(record.get(record.size() - 1)));
-            System.out.println(locationStat);
+
+            int latestCases = Integer.parseInt(record.get(record.size() - 1));
+            int prevCases = Integer.parseInt(record.get(record.size() - 2));
+            locationStat.setLatestTotalCases(latestCases);
+            locationStat.setDiffFromPreviousDay(latestCases - prevCases);
             newStats.add(locationStat);
         }//for
-
+        //to maintain availability use a separate list for execution
+        //then copy to the other list for users to view
         this.allStats = newStats;
 
     }//fetchVirusData
