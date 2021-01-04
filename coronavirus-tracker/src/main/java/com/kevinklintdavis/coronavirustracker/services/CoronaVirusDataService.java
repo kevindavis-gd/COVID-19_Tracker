@@ -44,10 +44,17 @@ public class CoronaVirusDataService {
         //Use Apache Commons to parse CSV data
         StringReader csvBodyReader = new StringReader(httpResponse.body());
         Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
+
         for (CSVRecord record : records) {
             LocationStats locationStat = new LocationStats();
+
             locationStat.setState(record.get("Province/State"));
+            if (locationStat.getState() =="")
+                locationStat.setState("N/A");
+
             locationStat.setCountry(record.get("Country/Region"));
+            if (locationStat.getCountry() =="")
+                locationStat.setCountry("N/A");
 
             int latestCases = Integer.parseInt(record.get(record.size() - 1));
             int prevCases = Integer.parseInt(record.get(record.size() - 2));
@@ -55,9 +62,16 @@ public class CoronaVirusDataService {
             locationStat.setDiffFromPreviousDay(latestCases - prevCases);
             newStats.add(locationStat);
         }//for
+
+
+
+
         //to maintain availability use a separate list for execution
         //then copy to the other list for users to view
         this.allStats = newStats;
+
+
+
 
     }//fetchVirusData
 }
