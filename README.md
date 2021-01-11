@@ -1,2 +1,2 @@
 # COVID-19_Tracker
- Covid Tracker using sprinfboot
+ Covid Tracker using spring boot (JAVA)
